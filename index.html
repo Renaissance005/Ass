@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>G3 Prediction</title>
+</head>
+<body>
+    <h2>Predict Student's Final Score (G3)</h2>
+    <form id="predictForm">
+        G1 Score: <input type="number" id="G1" required><br>
+        G2 Score: <input type="number" id="G2" required><br>
+        Family Income: <input type="number" id="family_income" required><br>
+        <button type="button" onclick="predict()">Predict</button>
+    </form>
+    <h3>Prediction: <span id="result"></span></h3>
+
+    <script>
+        function predict() {
+            const data = {
+                G1: document.getElementById("G1").value,
+                G2: document.getElementById("G2").value,
+                family_income: document.getElementById("family_income").value
+            };
+
+            fetch("http://127.0.0.1:5000/predict", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(data)
+            })
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById("result").innerText = data.predicted_G3;
+            });
+        }
+    </script>
+</body>
+</html>
