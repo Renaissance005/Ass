@@ -1,26 +1,25 @@
-from flask import Flask, request, jsonify
+import streamlit as st
 import joblib
-import numpy as np
 import pandas as pd
+import numpy as np
 
 # Load the trained model
 model = joblib.load("xgboost_model.pkl")
 
-# Initialize Flask app
-app = Flask(__name__)
+# Streamlit UI
+st.title("Student Final Score (G3) Prediction")
+st.write("Enter student details to predict the final score (G3).")
 
-@app.route('/predict', methods=['POST'])
-def predict():
-    data = request.json  # Get data from request
-    df = pd.DataFrame([data])  # Convert to DataFrame
+# User input fields
+G1 = st.number_input("G1 Score", min_value=0, max_value=20, step=1)
+G2 = st.number_input("G2 Score", min_value=0, max_value=20, step=1)
+family_income = st.number_input("Family Income", min_value=0, step=500)
+
+# Prediction function
+if st.button("Predict"):
+    input_data = pd.DataFrame([[G1, G2, family_income]], columns=['G1', 'G2', 'family_income'])
+    input_data['G1_G2_avg'] = (input_data['G1'] + input_data['G2']) / 2  # Add feature used in training
+
+    prediction = model.predict(input_data)[0]
     
-    # Ensure the feature order is correct
-    df['G1_G2_avg'] = (df['G1'] + df['G2']) / 2
-
-    # Make prediction
-    prediction = model.predict(df)[0]
-    
-    return jsonify({"predicted_G3": round(prediction, 2)})
-
-if __name__ == '__main__':
-    app.run(debug=True)
+    st.success(f"Predicted Final Score (G3): {round(prediction, 2)}")
